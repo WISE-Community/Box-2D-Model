@@ -118,28 +118,29 @@ function init(wiseData, previousModels, forceDensityValue, tableData, custom_obj
 		if (typeof wiseData !== "undefined"){
 			for (var key in wiseData){ 
 				obj = wiseData[key];
-				if (typeof obj === "object" && typeof obj.branching !== "undefined"){
-					if (typeof obj.branching.branchingFunction !== "undefined"){
-						var fun = obj.branching.branchingFunction;
-						if (fun == "mod" && typeof obj.branching.branchingFunctionParams !== "undefined" && obj.branching.branchingFunctionParams.length == 2){
-							if (obj.branching.branchingFunctionParams[0] == "WISE_WORKGROUP_ID"){
-								var wg = box2dModel.view.getUserAndClassInfo().getWorkgroupId();
-								if (typeof wg !== "undefined" && !isNaN(wg)){
-									var map = wg % obj.branching.branchingFunctionParams[1].length;
-									GLOBAL_PARAMETERS[key] = obj.branching.branchingFunctionParams[1][map];
-								} else if (typeof obj.branching.default !== "undefined"){
-									GLOBAL_PARAMETERS[key] = obj.branching.default;
-								}	
-							} else if (typeof obj.branching.default !== "undefined"){
-								GLOBAL_PARAMETERS[key] = obj.branching.default;
-							}		
-						} else if (typeof obj.branching.default !== "undefined"){
-							GLOBAL_PARAMETERS[key] = obj.branching.default;
-						}	
-					}
-				} else {
-					GLOBAL_PARAMETERS[key] = obj;
-				}
+				// if (typeof obj === "object" && typeof obj.branching !== "undefined"){
+				// 	if (typeof obj.branching.branchingFunction !== "undefined"){
+				// 		var fun = obj.branching.branchingFunction;
+				// 		if (fun == "mod" && typeof obj.branching.branchingFunctionParams !== "undefined" && obj.branching.branchingFunctionParams.length == 2){
+				// 			if (obj.branching.branchingFunctionParams[0] == "WISE_WORKGROUP_ID"){
+				// 				var wg = box2dModel.view.getUserAndClassInfo().getWorkgroupId();
+				// 				if (typeof wg !== "undefined" && !isNaN(wg)){
+				// 					var map = wg % obj.branching.branchingFunctionParams[1].length;
+				// 					GLOBAL_PARAMETERS[key] = obj.branching.branchingFunctionParams[1][map];
+				// 				} else if (typeof obj.branching.default !== "undefined"){
+				// 					GLOBAL_PARAMETERS[key] = obj.branching.default;
+				// 				}
+				// 			} else if (typeof obj.branching.default !== "undefined"){
+				// 				GLOBAL_PARAMETERS[key] = obj.branching.default;
+				// 			}
+				// 		} else if (typeof obj.branching.default !== "undefined"){
+				// 			GLOBAL_PARAMETERS[key] = obj.branching.default;
+				// 		}
+				// 	}
+				// } else {
+				// 	GLOBAL_PARAMETERS[key] = obj;
+				// }
+				GLOBAL_PARAMETERS[key] = obj;
 			}	
 		} else {
 			$.getJSON('box2dModelTemplate.b2m', function(data) {

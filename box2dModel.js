@@ -36,14 +36,15 @@
  * @constructor
  */
 function Box2dModel(node) {
-	this.node = node;
-	this.view = node.view;
-	this.content = node.getContent().getContentJSON();
-	if(node.studentWork != null) {
-		this.states = node.studentWork;
-	} else {
-		this.states = [];  
-	};
+	// this.node = node;
+	// this.view = node.view;
+	this.content = content;
+	// if(node.studentWork != null) {
+	// 	this.states = node.studentWork;
+	// } else {
+	// 	this.states = [];
+	// };
+	this.states = [];
 	var d = new Date();
 	this.timestamp = d.getTime();
 
@@ -155,14 +156,14 @@ Box2dModel.prototype.render = function() {
 	// store details of liquids that were tested for mass, volume
 	this.liquids_tested = [];
 
-	//process the tag maps if we are not in authoring mode
-	if(typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode) {
-		var tagMapResults = this.processTagMaps();
-		//get the result values
-		if (typeof tagMapResults.previousModels !== "undefined") previousModels = tagMapResults.previousModels;
-		if (typeof tagMapResults.custom_objects_made_count !== "undefined") custom_objects_made_count = tagMapResults.custom_objects_made_count;
-		if (typeof tagMapResults.density !== "undefined") density = tagMapResults.density;		
-	}
+	// //process the tag maps if we are not in authoring mode
+	// if(typeof this.view.authoringMode === "undefined" || this.view.authoringMode == null || !this.view.authoringMode) {
+	// 	var tagMapResults = this.processTagMaps();
+	// 	//get the result values
+	// 	if (typeof tagMapResults.previousModels !== "undefined") previousModels = tagMapResults.previousModels;
+	// 	if (typeof tagMapResults.custom_objects_made_count !== "undefined") custom_objects_made_count = tagMapResults.custom_objects_made_count;
+	// 	if (typeof tagMapResults.density !== "undefined") density = tagMapResults.density;
+	// }
 
 	//load any previous responses the student submitted for this step
 	var latestState = this.getLatestState();
@@ -197,13 +198,13 @@ Box2dModel.prototype.render = function() {
 		$('#studentResponseTextArea').val(latestState.response);
 	}
 
-	// setup the event logger and feedbacker
-	if (typeof this.content.feedbackEvents != "undefined"){
-		this.feedbackManager =  new FeedbackManager(this.node, this.content.feedbackEvents, this.node.customEventTypes) ;
-	} else {
-		this.feedbackManager =  new FeedbackManager(this.node, [], this.node.customEventTypes) ;
-		this.node.setCompleted();
-	}
+	// // setup the event logger and feedbacker
+	// if (typeof this.content.feedbackEvents != "undefined"){
+	// 	this.feedbackManager =  new FeedbackManager(this.node, this.content.feedbackEvents, this.node.customEventTypes) ;
+	// } else {
+	// 	this.feedbackManager =  new FeedbackManager(this.node, [], this.node.customEventTypes) ;
+	// 	this.node.setCompleted();
+	// }
 
 	if (typeof tester == "undefined" || tester == null){ // if we are already in this step, the following is unnecessary
 		init(box2dModel.content, previousModels, density >= 0 ? density : undefined, tableData, custom_objects_made_count);
@@ -1138,7 +1139,7 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		 //if (isStepCompleted){this.view.pushStudentWork(this.node.id, {});}
 	}
 
-	eventManager.fire('studentWorkUpdated', [this.node.id, this.view.getState().getNodeVisitsByNodeId(this.node.id)]);
+	//eventManager.fire('studentWorkUpdated', [this.node.id, this.view.getState().getNodeVisitsByNodeId(this.node.id)]);
 	if (evt.type == "save-pressed") {
 		obj.save(evt);
 	}

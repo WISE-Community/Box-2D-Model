@@ -19,6 +19,7 @@
 			 */
 		
 			var box2dModel;
+			var eventManager;
 		
 			function loadContentAfterScriptsLoad(node) {
 				/*
@@ -43,6 +44,7 @@
 				 * appropriate. following my previous example I would rename it
 				 * to quiz.
 				 */
+				eventManager = new EventManager();
 				box2dModel = new Box2dModel(node);
 	        	box2dModel.render();
 	        };
@@ -83,6 +85,11 @@
 				}
 	        }
 		</script>
+		<script src="libs/jquery-2.1.1.min.js"></script>
+		<script src="libs/jquery-ui-1.10.0.custom.min.js"></script>
+		<script src="eventManager.js"></script>
+		<script src="box2dModel.js"></script>
+		<script src="content.js"></script>
 		<script src="libs/easel.js"></script>
 		<script src="libs/Box2dWeb-2.1.a.3.min.js"></script>
 		<script src="libs/canvas2image.js"></script>
@@ -117,9 +124,10 @@
 		<script src="js/B2Objects/skins/BalanceShape.js"></script>
 		<script src="js/FeedbackManager.js"></script>
 		<script src="js/box2dModelMain.js"></script>
+		<link rel="stylesheet" href="libs/jquery-ui-1.9.0.custom.min.css">
 	</head>
 
-	<body>
+	<body onload="loadContentAfterScriptsLoad()">
 
 		<!-- TODO create the html UI that the student will see when they visit the step -->
 		<div id='messageDiv'></div>
