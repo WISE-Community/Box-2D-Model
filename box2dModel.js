@@ -35,20 +35,35 @@
  * 
  * @constructor
  */
-function Box2dModel(node) {
-	// this.node = node;
-	// this.view = node.view;
-	this.content = content;
-	// if(node.studentWork != null) {
-	// 	this.states = node.studentWork;
-	// } else {
-	// 	this.states = [];
-	// };
+class Box2dModel extends WISEAPI {
+	constructor() {
+		super();
+		this.sendGetParametersMessage();
+	}
+}
+
+Box2dModel.prototype.handleParametersMessage = function(messageData) {
+	const parameters = messageData.parameters;
+	this.content = parameters;
 	this.states = [];
 	var d = new Date();
 	this.timestamp = d.getTime();
+	this.render();
+}
 
-};
+// function Box2dModel(node) {
+// 	// this.node = node;
+// 	// this.view = node.view;
+// 	this.content = content;
+// 	// if(node.studentWork != null) {
+// 	// 	this.states = node.studentWork;
+// 	// } else {
+// 	// 	this.states = [];
+// 	// };
+// 	this.states = [];
+// 	var d = new Date();
+// 	this.timestamp = d.getTime();
+// };
 
 /**
  * Find the previous models for all the steps that have the given tag and occur
