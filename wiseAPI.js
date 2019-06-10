@@ -143,6 +143,14 @@ class WISEAPI {
     componentState.annotations.push(annotation);
   }
 
+  saveToWISE(componentState) {
+    try {
+      this.sendMessageToParent(componentState);
+    } catch(err) {
+      console.log('Failed to Save to WISE');
+    }
+  }
+
   /**
    * @param message An object that contains a messageType field. Additional fields can be added to
    * the message object when applicable. The messageType value can be one of these values:

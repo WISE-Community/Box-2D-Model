@@ -3,7 +3,7 @@
 		<script type="text/javascript">
 			/*
 			 * TODO: Copy this file and rename it to
-			 * 
+			 *
 			 * <new step type>.html
 			 * e.g. quiz.html
 			 *
@@ -17,19 +17,19 @@
 			 * something like this
 			 * vlewrapper/WebContent/vle/node/quiz/
 			 */
-		
+
 			var box2dModel;
 			var eventManager;
-		
+
 			function loadContentAfterScriptsLoad(node) {
 				/*
 				 * TODO: rename Box2dModel
-				 * 
+				 *
 				 * make sure you rename Box2dModel to the object you created in
 				 * the file when you copied and modified
-				 * 
+				 *
 				 * vlewrapper/WebContent/vle/node/box2dModel/box2dModel.js
-				 * 
+				 *
 				 * for example if you are creating a quiz step and you
 				 * created the file
 				 *
@@ -39,7 +39,7 @@
 				 * change Box2dModel to Quiz
 				 *
 				 * TODO: rename box2dModel variable
-				 * 
+				 *
 				 * you should also rename the local var box2dModel variable to something
 				 * appropriate. following my previous example I would rename it
 				 * to quiz.
@@ -47,21 +47,21 @@
 				eventManager = new EventManager();
 				box2dModel = new Box2dModel(node);
 	        };
-			
+
 	        function loadContent(node) {
 		        /*
 		         * this loadScripts() function call will load the javascript imports
-		         * into this html file 
-		         * 
+		         * into this html file
+		         *
 		         * TODO: rename box2dModel
 		         *
 		         * you will need to rename box2dModel to the variable name that you
-		         * used in 
-		         * 
+		         * used in
+		         *
 		         * vlewrapper/WebContent/vle/util/scriptloader.js
 		         *
 		         * when you defined your script paths in the 'scripts' array
-		         * 
+		         *
 		         * for example if you are creating a quiz step and you added
 		         * the variable named quiz to the scripts array, you would change
 		         * 'box2dModel' to 'quiz'
@@ -86,6 +86,7 @@
 		<script src="wiseAPI.js"></script>
 		<script src="libs/jquery-2.1.1.min.js"></script>
 		<script src="libs/jquery-ui-1.10.0.custom.min.js"></script>
+		<script src="libs/highcharts.js"></script>
 		<script src="eventManager.js"></script>
 		<script src="box2dModel.js"></script>
 		<script src="content.js"></script>

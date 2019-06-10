@@ -48,7 +48,20 @@ Box2dModel.prototype.handleParametersMessage = function(messageData) {
 	this.states = [];
 	var d = new Date();
 	this.timestamp = d.getTime();
-	this.render();
+	this.parametersReceived = true;
+	this.renderIfReady();
+}
+
+Box2dModel.prototype.handleComponentStateMessage = function(messageData) {
+	this.componentState = messageData.componentState;
+	this.componentStateReceived = true;
+	this.renderIfReady();
+}
+
+Box2dModel.prototype.renderIfReady = function() {
+	if (this.parametersReceived && this.componentStateReceived) {
+		this.render();
+	}
 }
 
 // function Box2dModel(node) {
@@ -211,6 +224,30 @@ Box2dModel.prototype.render = function() {
 		
 		//set the previous student work into the text area
 		$('#studentResponseTextArea').val(latestState.response);
+	}
+
+	if (this.componentState != null) {
+		var tableData = this.componentState.studentData.globalParametersTableData;
+		const latestModels = this.componentState.studentData.modelData;
+		if (latestModels != null && latestModels != '' && typeof latestModels != "undefined"){
+			previousModels = latestModels.savedModels.concat(previousModels);
+			// remove any models with a repeat id
+			var model_ids = [];
+			for (var i = previousModels.length-1; i >= 0; i--){
+				var match_found = false;
+				for (var j = 0; j < model_ids.length; j++){
+					if (model_ids[j] == previousModels[i].id){
+						previousModels.splice(i, 1);
+						match_found = true;
+						break;
+					}
+				}
+				if (!match_found) model_ids.push(previousModels[i].id);
+			}
+			custom_objects_made_count = Math.max(custom_objects_made_count, latestModels.custom_objects_made_count);
+		}
+		//set the previous student work into the text area
+		//$('#studentResponseTextArea').val(latestState.response);
 	}
 
 	// // setup the event logger and feedbacker
@@ -1158,6 +1195,10 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 	if (evt.type == "save-pressed") {
 		obj.save(evt);
 	}
+
+	if (evt.type == "test-on-scale") {
+		this.save();
+	}
 }
 
 
@@ -1381,6 +1422,7 @@ Box2dModel.prototype.renderTable = function(popup) {
 
 		builder.addDataElement($('#' + divId)[0]);
 	}
+	//this.save();
 }
 
 
@@ -1400,7 +1442,7 @@ Box2dModel.prototype.save = function(evt) {
 
 	var response = $('#studentResponseTextArea').length ? $('#studentResponseTextArea').val(): "";
 	var modelData = {};
-	var history = this.feedbackManager.getHistory(250000);
+	//var history = this.feedbackManager.getHistory(250000);
 	var tableData = GLOBAL_PARAMETERS.tableData;
 
 	//load with objects from library
@@ -1423,54 +1465,64 @@ Box2dModel.prototype.save = function(evt) {
 		}
 	}
 
-	// save event history
-	var latestState = this.getLatestState();
-	// only save if history is different from previous - otherwise we're just adding unnecessary data
-	if (((latestState == null || typeof latestState.history === "undefined" ) && history.length > 0) ||
-		(typeof latestState.history !== "undefined" && (latestState.history.length != history.length || (latestState.history[latestState.history.length-1].index != history[history.length-1].index))) ||
-		(latestState.response == null && response.length > 0) || latestState.response !== response
-	){
-
-		console.log("---------------------- SAVING appx length -----------------------", (JSON.stringify(history).length+JSON.stringify(modelData.images).length+JSON.stringify(tableData).length+JSON.stringify(modelData.savedModels).length)*2 + response.length);
-		//} 
-		//go thro
-		/*
-		 * create the student state that will store the new work the student
-		 * just submitted
-		 * 
-		 * TODO: rename Box2dModelState
-		 * 
-		 * make sure you rename Box2dModelState to the state object type
-		 * that you will use for representing student data for this
-		 * type of step. copy and modify the file below
-		 * 
-		 * vlewrapper/WebContent/vle/node/box2dModel/box2dModelState.js
-		 * 
-		 * and use the object defined in your new state.js file instead
-		 * of Box2dModelState. for example if you are creating a new
-		 * quiz step type you would copy the file above to
-		 * 
-		 * vlewrapper/WebContent/vle/node/quiz/quizState.js
-		 * 
-		 * and in that file you would define QuizState and therefore
-		 * would change the Box2dModelState to QuizState below
-		 */
-		var box2dModelState = new Box2dModelState(response, tableData, modelData, history);
-		/*
-		 * fire the event to push this state to the global view.states object.
-		 * the student work is saved to the server once they move on to the
-		 * next step.
-		 */
-		this.view.pushStudentWork(this.node.id, box2dModelState);
-
-		//push the state object into this or object's own copy of states
-		this.states.push(box2dModelState);
-
-		// we are not returning clear GLOBAL_PA
-		return box2dModelState;
-	} else {
-		return null;
+	const studentData = {
+		modelData: modelData,
+		globalParametersTableData: GLOBAL_PARAMETERS.tableData
+	};
+	if (Array.isArray(this.chart)) {
+		studentData.tableData = this.convertToWISETable(this.chart);
 	}
+	const componentState = this.createComponentState(studentData);
+	this.saveToWISE(componentState);
+
+	// // save event history
+	// var latestState = this.getLatestState();
+	// // only save if history is different from previous - otherwise we're just adding unnecessary data
+	// if (((latestState == null || typeof latestState.history === "undefined" ) && history.length > 0) ||
+	// 	(typeof latestState.history !== "undefined" && (latestState.history.length != history.length || (latestState.history[latestState.history.length-1].index != history[history.length-1].index))) ||
+	// 	(latestState.response == null && response.length > 0) || latestState.response !== response
+	// ){
+	//
+	// 	console.log("---------------------- SAVING appx length -----------------------", (JSON.stringify(history).length+JSON.stringify(modelData.images).length+JSON.stringify(tableData).length+JSON.stringify(modelData.savedModels).length)*2 + response.length);
+	// 	//}
+	// 	//go thro
+	// 	/*
+	// 	 * create the student state that will store the new work the student
+	// 	 * just submitted
+	// 	 *
+	// 	 * TODO: rename Box2dModelState
+	// 	 *
+	// 	 * make sure you rename Box2dModelState to the state object type
+	// 	 * that you will use for representing student data for this
+	// 	 * type of step. copy and modify the file below
+	// 	 *
+	// 	 * vlewrapper/WebContent/vle/node/box2dModel/box2dModelState.js
+	// 	 *
+	// 	 * and use the object defined in your new state.js file instead
+	// 	 * of Box2dModelState. for example if you are creating a new
+	// 	 * quiz step type you would copy the file above to
+	// 	 *
+	// 	 * vlewrapper/WebContent/vle/node/quiz/quizState.js
+	// 	 *
+	// 	 * and in that file you would define QuizState and therefore
+	// 	 * would change the Box2dModelState to QuizState below
+	// 	 */
+	// 	var box2dModelState = new Box2dModelState(response, tableData, modelData, history);
+	// 	/*
+	// 	 * fire the event to push this state to the global view.states object.
+	// 	 * the student work is saved to the server once they move on to the
+	// 	 * next step.
+	// 	 */
+	// 	this.view.pushStudentWork(this.node.id, box2dModelState);
+	//
+	// 	//push the state object into this or object's own copy of states
+	// 	this.states.push(box2dModelState);
+	//
+	// 	// we are not returning clear GLOBAL_PA
+	// 	return box2dModelState;
+	// } else {
+	// 	return null;
+	// }
 };
 
 /**
@@ -1512,6 +1564,26 @@ Box2dModel.prototype.processTeacherNotifications = function(nodeVisit, nodeState
         }
     }
 };
+
+Box2dModel.prototype.convertToWISETable = function(chartObject) {
+	const wiseTable = [];
+	const numRows = chartObject[0].length;
+	const numColumns = chartObject.length;
+	for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
+		const wiseRow = [];
+		for (let columnIndex = 0; columnIndex < numColumns; columnIndex++) {
+			const cellValue = chartObject[columnIndex][rowIndex];
+			const wiseCell = {
+				text: cellValue,
+				editable: false,
+				size: null
+			};
+			wiseRow.push(wiseCell);
+		}
+		wiseTable.push(wiseRow);
+	}
+	return wiseTable;
+}
 
 //used to notify scriptloader that this script has finished loading
 if(typeof eventManager != 'undefined'){
