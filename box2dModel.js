@@ -1196,7 +1196,7 @@ Box2dModel.prototype.interpretEvent = function(type, args, obj) {
 		obj.save(evt);
 	}
 
-	if (evt.type == "test-on-scale") {
+	if (evt.type === "test-on-scale" || evt.type === "test-in-beaker") {
 		this.save();
 	}
 }
