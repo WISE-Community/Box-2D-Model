@@ -1469,8 +1469,9 @@ Box2dModel.prototype.save = function(evt) {
 		modelData: modelData,
 		globalParametersTableData: GLOBAL_PARAMETERS.tableData
 	};
-	if (Array.isArray(this.chart)) {
-		studentData.tableData = this.convertToWISETable(this.chart);
+	if (this.content.exportTableColumns != null) {
+		studentData.tableData =
+			this.convertToWISETable(GLOBAL_PARAMETERS.tableData, this.content.exportTableColumns);
 	}
 	const componentState = this.createComponentState(studentData);
 	this.saveToWISE(componentState);
@@ -1565,24 +1566,52 @@ Box2dModel.prototype.processTeacherNotifications = function(nodeVisit, nodeState
     }
 };
 
-Box2dModel.prototype.convertToWISETable = function(chartObject) {
+Box2dModel.prototype.convertToWISETable = function(tableData, columns) {
 	const wiseTable = [];
-	const numRows = chartObject[0].length;
-	const numColumns = chartObject.length;
+	const numRows = tableData[0].length;
 	for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
 		const wiseRow = [];
-		for (let columnIndex = 0; columnIndex < numColumns; columnIndex++) {
-			const cellValue = chartObject[columnIndex][rowIndex];
+		for (const column of columns) {
+			const columnIndex = this.getColumnIndex(tableData, column.key);
+			let cellValue = this.getCellValue(tableData, rowIndex, columnIndex);
+			if (column.replaceWith != null) {
+				cellValue = column.replaceWith;
+			}
+			if (rowIndex === 0) {
+				cellValue = column.columnName;
+			}
 			const wiseCell = {
 				text: cellValue,
-				editable: false,
-				size: null
+				editable: column.editable == null || column.editable,
+				size: column.size
 			};
 			wiseRow.push(wiseCell);
 		}
 		wiseTable.push(wiseRow);
 	}
 	return wiseTable;
+}
+
+Box2dModel.prototype.getColumnIndex = function(tableData, columnName) {
+	for (let columnIndex = 0; columnIndex < tableData.length; columnIndex++) {
+		if (tableData[columnIndex][0].text.toLowerCase() === columnName.toLowerCase()) {
+			return columnIndex;
+		}
+	}
+	return null;
+}
+
+Box2dModel.prototype.getCellValue = function(tableData, rowIndex, columnIndex) {
+	let text = tableData[columnIndex][rowIndex].text;
+	if (typeof text === 'number') {
+		text = this.roundNumber(text, 2);
+	}
+	return text;
+}
+
+Box2dModel.prototype.roundNumber = function(number, decimalPlaces) {
+	const multiplier = 10 ** decimalPlaces;
+	return Math.floor(number * multiplier) / multiplier;
 }
 
 //used to notify scriptloader that this script has finished loading
